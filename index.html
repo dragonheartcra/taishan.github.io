@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>泰山游览攻略</title>
+  <!-- 引入 Swiper CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+  <!-- 引入 AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f5f5f5;
+      overflow-x: hidden;
+    }
+
+    .header {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .header-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('./图片1.png');
+      background-size: cover;
+      background-position: center;
+      transform: scale(1.1);
+      transition: transform 0.5s ease-out;
+    }
+
+    .header.active .header-bg {
+      transform: scale(1);
+    }
+
+    .header-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      width: 100%;
+      padding: 0 20px;
+    }
+
+    .header-title {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease-out;
+    }
+
+    .header.active .header-title {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .header-subtitle {
+      font-size: 1.2rem;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease-out 0.2s;
+    }
+
+    .header.active .header-subtitle {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px;
+      z-index: 1000;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .swiper-container {
+      width: 100%;
+      height: 60px;
+    }
+
+    .nav-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      color: #666;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .nav-button.active {
+      color: #4CAF50;
+    }
+
+    .nav-icon {
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+
+    .section {
+      padding: 20px;
+      margin: 20px;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #4CAF50;
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background: #4CAF50;
+      animation: titleLine 2s ease-out infinite;
+    }
+
+    @keyframes titleLine {
+      0% { width: 0; }
+      50% { width: 50px; }
+      100% { width: 0; }
+    }
+
+    .img-container {
+      position: relative;
+      width: 100%;
+      margin: 15px 0;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    .img-container img {
+      width: 100%;
+      height: auto;
+      transform: scale(1);
+      transition: transform 0.5s ease;
+    }
+
+    .img-container:hover img {
+      transform: scale(1.05);
+    }
+
+    .list-item {
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .list-item:hover {
+      transform: translateX(10px);
+      background: #e9ecef;
+    }
+
+    .list-item strong {
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* 景点轮播 */
+    .spots-slider {
+      height: 300px;
+      margin: 20px 0;
+    }
+
+    .spot-slide {
+      text-align: center;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .spot-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 加载动画 */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loading-circle {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #4CAF50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      html {
+        font-size: 14px;
+      }
+
+      .section {
+        margin: 10px;
+        padding: 15px;
+      }
+
+      .header-title {
+        font-size: 2rem;
+      }
+    }
+
+    /* 列表样式优化 */
+    ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* 一级列表项 */
+    ul > li {
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    ul > li:hover {
+      background-color: #e9ecef;
+      transform: translateX(10px);
+    }
+
+    /* 二级列表 */
+    ul ul {
+      margin-top: 10px;
+      margin-left: 20px;
+    }
+
+    /* 二级列表项 */
+    ul ul > li {
+      padding: 10px;
+      margin-bottom: 8px;
+      background-color: #ffffff;
+      border-left: 3px solid #4CAF50;
+    }
+
+    /* 列表项中的强调文本 */
+    li strong {
+      display: block;
+      color: #2c3e50;
+      margin-bottom: 8px;
+      font-size: 1.1em;
+    }
+
+    /* 列表项中的段落 */
+    li p {
+      margin: 8px 0;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* 带图片的列表项 */
+    li img.left {
+      float: left;
+      max-width: 200px;
+      width: 100%;
+      height: auto;
+      margin: 15px 20px 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .clear {
+      clear: both;
+      height: 15px;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      ul > li {
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+
+      ul ul {
+        margin-left: 15px;
+      }
+
+      li strong {
+        font-size: 1em;
+      }
+    }
+
+    /* 响应式图片调整 */
+    @media (max-width: 768px) {
+      li img.left {
+        max-width: 150px;
+        margin: 10px 15px 10px 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      li img.left {
+        float: none;
+        max-width: 100%;
+        margin: 10px 0;
+      }
+    }
+
+    /* 路线内容布局 */
+    .route-content {
+      position: relative;
+      overflow: hidden;
+      padding: 15px;
+    }
+
+    .route-text {
+      overflow: hidden;
+    }
+
+    .route-content img.left {
+      float: left;
+      max-width: 200px;
+      width: 100%;
+      height: auto;
+      margin: 0 20px 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .route-content img.left {
+        max-width: 150px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .route-content img.left {
+        float: none;
+        max-width: 100%;
+        margin: 0 0 15px 0;
+      }
+      
+      .route-text {
+        clear: both;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 加载动画 -->
+  <div class="loading">
+    <div class="loading-circle"></div>
+  </div>
+
+  <header class="header">
+    <div class="header-bg"></div>
+    <div class="header-content">
+      <h1 class="header-title">泰山游览攻略</h1>
+      <p class="header-subtitle">五岳之首 天下第一山</p>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <div class="swiper-container">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <a href="#intro" class="nav-button">
+            <i class="nav-icon">📖</i>
+            <span>简介</span>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="#spots" class="nav-button">
+            <i class="nav-icon">🏔️</i>
+            <span>景点</span>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="#wonders" class="nav-button">
+            <i class="nav-icon">✨</i>
+            <span>奇观</span>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="#transport" class="nav-button">
+            <i class="nav-icon">🚗</i>
+            <span>交通</span>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="#routes" class="nav-button">
+            <i class="nav-icon">🗺️</i>
+            <span>路线</span>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="#equipment" class="nav-button">
+            <i class="nav-icon">🎒</i>
+            <span>装备</span>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="#schedule" class="nav-button">
+            <i class="nav-icon">📅</i>
+            <span>行程</span>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="#tickets" class="nav-button">
+            <i class="nav-icon">🎫</i>
+            <span>门票</span>
+          </a>
+        </div>
+        <div class="swiper-slide">
+          <a href="#tips" class="nav-button">
+            <i class="nav-icon">💡</i>
+            <span>提示</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div id="intro" class="section" data-aos="fade-up">
+    <h2 class="section-title">泰山简介</h2>
+    <p>泰山，位于山东省泰安市，是中国五岳之首，世界文化与自然双重遗产。以其壮丽的自然风光和深厚的文化底蕴著称。</p>
+    <div class="img-container" data-aos="zoom-in">
+      <img src="./图片1.png" alt="泰山简介图片">
+    </div>
+  </div>
+
+  <div id="spots" class="section" data-aos="fade-up">
+    <h2 class="section-title">泰山著名景点</h2>
+    <!-- 景点轮播 -->
+    <div class="swiper-container spots-slider">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide spot-slide">
+          <img src="./图片2.png" alt="红门景区">
+        </div>
+        <div class="swiper-slide spot-slide">
+          <img src="./图片3.png" alt="中天门景区">
+        </div>
+        <div class="swiper-slide spot-slide">
+          <img src="./图片4.png" alt="南天门景区">
+        </div>
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+    <div class="list-item" data-aos="fade-right">
+      <strong>红门景区</strong>
+      <p>泰山最古老的一大景区。</p>
+    </div>
+    <div class="list-item" data-aos="fade-right" data-aos-delay="100">
+      <strong>中天门景区</strong>
+      <p>上下山的必经之地。</p>
+    </div>
+    <div class="list-item" data-aos="fade-right" data-aos-delay="200">
+      <strong>南天门景区</strong>
+      <p>泰山标志性建筑，拥有众多地质遗迹。</p>
+    </div>
+  </div>
+
+  <div id="wonders" class="section">
+    <h2>泰山四大奇观</h2>
+    <ul>
+      <li>
+        <strong>晚霞夕照：</strong>雨过天晴时，夕阳映照下的泰山云峰之上镶嵌着金边，闪烁着奇珍异宝般的光辉。
+        <img src="./图片2.png" class="left">
+        <div class="clear"></div>
+      </li>
+      <li>
+        <strong>泰山佛光：</strong>特定条件下，云雾中出现的彩色光环，将人影映在里面，如同佛光。
+        <img src="./图片3.png" class="left">
+        <div class="clear"></div>
+      </li>
+      <li>
+        <strong>云海玉盘：</strong>雨后初晴时，岱顶可见白云平铺万里，犹如巨大的玉盘悬浮天地间。
+        <img src="./图片4.png" class="left">
+        <div class="clear"></div>
+      </li>
+      <li>
+        <strong>旭日东升：</strong>泰山日出壮观动人，从黑暗到金黄，变幻出千万种画面，令人叹为观止。
+        <img src="./图片5.png" class="left">
+        <div class="clear"></div>
+      </li>
+    </ul>
+  </div>
+
+  <div id="transport" class="section">
+    <h2>地址与交通</h2>
+    <p><strong>地址：</strong>山东省泰安市泰山区</p>
+    <p><strong>交通：</strong></p>
+    <ul>
+      <li>火车：泰安有两个火车站，泰山站和高铁泰安站。泰山站主要停靠普通列车，高铁泰安站主要停靠高铁列车。</li>
+      <li>公交：从泰山站可乘坐K3公交线至红门或天外村入口；从高铁泰安站可乘坐K18线至火车站转K3线。</li>
+      <li>出租车：泰安出租车费用相对便宜，从高铁站至岱庙约25元。</li>
+    </ul>
+  </div>
+
+  <div id="routes" class="section">
+    <h2>登山路线推荐</h2>
+    <ul>
+      <li>
+        <div class="route-content">
+          <img src="./图片6.png" alt="登山路线图" class="left">
+          <div class="route-text">
+            <p><strong>红门路线：</strong>经典步行路线，名胜古迹最多，适合初次登山游客。</p>
+            <p><strong>天外村路线：</strong>最方便的观光车游览路线，可乘车至中天门后步行或乘索道至山顶。</p>
+            <p><strong>天烛峰路线：</strong>较为古朴自然的路线，适合喜欢探险和自助游的游客。</p>
+            <p><strong>桃花峪路线：</strong>春天可欣赏桃花，有桃花源索道。</p>
+          </div>
+          <div class="clear"></div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div id="equipment" class="section">
+    <h2>装备与准备</h2>
+    <ul>
+      <li><strong>登山杖：</strong>建议购买，价格低廉，有助于登山。</li>
+      <li><strong>食物和水：</strong>中天门处补给水源和食物，价格相对便宜。</li>
+      <li><strong>军大衣：</strong>山顶夜间寒冷，可租借军大衣保暖，价格根据季节不同有所变化。</li>
+    </ul>
+  </div>
+
+  <div id="schedule" class="section">
+    <h2>行程安排</h2>
+    <ul>
+      <li><strong>白天爬：</strong>早上出发，一天内往返或山上住宿。</li>
+      <li><strong>夜爬：</strong>晚上9点至10点开始，避免山顶寒冷等待。</li>
+    </ul>
+  </div>
+
+  <div id="tickets" class="section">
+    <h2>门票与索道</h2>
+    <ul>
+      <li><strong>门票：</strong>泰山门票价格为115元。</li>
+      <li><strong>索道：</strong>
+        <ul>
+          <li>中天门索道：单程100元/人次。</li>
+          <li>桃花源索道：单程100元/人次。</li>
+          <li>后石坞索道：单程20元/人次。</li>
+          <img src="./图片7.png" alt="" class="left">
+          <div class="clear"></div>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <div id="tips" class="section">
+    <h2>特别提示</h2>
+    <ul>
+      <li><strong>直升机游览：</strong>提供三条主要体验线路，包括"观山揽湖"、"飞阅泰山"和"云观泰城"，让游客从空中欣赏泰山美景。</li>
+      <li><strong>智慧旅游：</strong>泰山景区提供"一码游泰山、一网享服务"，整合酒店民宿、泰山美食、御寒服租赁等服务，实现"一站式"预约预订。</li>
+      <li><strong>咨询服务：</strong>泰山景区全天24小时为游客提供旅游咨询、应急求助、投诉建议等便捷服务。</li>
+    </ul>
+  </div>
+
+  <!-- 引入必要的 JS -->
+  <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script>
+    // 页面加载完成后初始化
+    window.addEventListener('load', () => {
+      // 移除加载动画
+      document.querySelector('.loading').style.display = 'none';
+      
+      // 激活头部动画
+      document.querySelector('.header').classList.add('active');
+
+      // 初始化 AOS
+      AOS.init({
+        duration: 1000,
+        once: true
+      });
+
+      // 初始化导航滑块
+      new Swiper('.nav .swiper-container', {
+        slidesPerView: 5,
+        spaceBetween: 10,
+        freeMode: true
+      });
+
+      // 初始化景点轮播
+      new Swiper('.spots-slider', {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        loop: true,
+        autoplay: {
+          delay: 3000,
+          disableOnInteraction: false,
+        },
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        }
+      });
+
+      // 导航按钮点击事件
+      document.querySelectorAll('.nav-button').forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = button.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+
+      // 滚动监听
+      const sections = document.querySelectorAll('.section');
+      const navButtons = document.querySelectorAll('.nav-button');
+
+      window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (pageYOffset >= sectionTop - sectionHeight / 3) {
+            current = section.getAttribute('id');
+          }
+        });
+
+        navButtons.forEach(button => {
+          button.classList.remove('active');
+          if (button.getAttribute('href').slice(1) === current) {
+            button.classList.add('active');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>
